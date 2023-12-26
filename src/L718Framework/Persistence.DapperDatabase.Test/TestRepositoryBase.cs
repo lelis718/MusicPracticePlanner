@@ -1,10 +1,8 @@
 using Dapper;
-using L718Framework.Core.Domain;
 using L718Framework.Infrastructure.Logging;
 using L718Framework.Persistence.DapperDatabase;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
 
 namespace Persistence.DapperDatabase.Test;
 
