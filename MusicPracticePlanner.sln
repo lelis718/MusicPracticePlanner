@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration", "src\Config
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicPracticePlannerAPI", "src\MusicPracticePlannerAPI\MusicPracticePlannerAPI.csproj", "{06350EC9-9ADF-41A0-9B1D-FBC5DC7E61A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence.DapperDatabase.Test", "src\L718Framework\Persistence.DapperDatabase.Test\Persistence.DapperDatabase.Test.csproj", "{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{06350EC9-9ADF-41A0-9B1D-FBC5DC7E61A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06350EC9-9ADF-41A0-9B1D-FBC5DC7E61A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06350EC9-9ADF-41A0-9B1D-FBC5DC7E61A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,5 +94,6 @@ Global
 		{D3F39B64-6BF8-408D-98A6-E2A4BD4D708F} = {15D785F5-1AA3-48D3-A688-20AADE6A1312}
 		{1C83EBC7-6D6D-4FBD-8299-261CE75CF286} = {1BDFEAD2-0204-49BA-A28C-D71C15CCA814}
 		{06350EC9-9ADF-41A0-9B1D-FBC5DC7E61A7} = {1BDFEAD2-0204-49BA-A28C-D71C15CCA814}
+		{666CF7D6-FF3A-4BA0-B1DE-6F06D85B4C67} = {A8028173-583C-435F-833F-8A3E213F23D7}
 	EndGlobalSection
 EndGlobal

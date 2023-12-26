@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace L718Framework.Core.Domain.Model;
 
 
@@ -24,6 +26,7 @@ public class EntityBase<IdType>:IEntity<IdType>
     /// <summary>
     /// The Id or Primary Key 
     /// </summary>
+    [Key]
     public IdType Id { get; protected set; }
 
     /// <summary>
