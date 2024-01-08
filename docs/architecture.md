@@ -96,7 +96,6 @@ The environment and context of the software is defined below.
 
 ## 3.1. Business Context
 
-![BusinessContext](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/lelis718/MusicPracticePlanner/main/docs/diagrams/3-1-business-context.txt)
 
 ```plantuml
 @startuml Business Context
