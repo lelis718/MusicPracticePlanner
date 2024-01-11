@@ -33,7 +33,8 @@ The Music Practice Planner, as a software has the following features:
 * Display a music sheet music and allow student to practice sections of the music according to the AAR Practice.
 * Desirable - student will be able to upload a midi of the music and then covert it to a format that system can show and work with.     
 
-## 1.2. Quality Goals 
+
+## 1.3. Quality Goals 
 
 | Nr | Quality | Motivation |
 |----|---------|------------|
@@ -42,7 +43,7 @@ The Music Practice Planner, as a software has the following features:
 | 3  | Systems Design | Create and Document the software in a way that everyone in touch of this project will understand it's needs and keeps tracks of its involvement  |
 | 4  | Testability | The project architecture must allow testing all the building blocks. |
 
-## 1.3. Stakeholders
+## 1.4. Stakeholders
 
 Below are the important personas for the application
 
@@ -91,10 +92,139 @@ A few constrains of the architecture.
 
 ## 3. System Scope and Context
 
-The environment and context of the software is defined below.
+In order to understand the context of the system some session about understanding the domain was defined.
+
+## 3.1. Understanding the Domain
+
+### 3.1.2. BDD Matrix
+In order to Understand the Domain, a BDD Scenario Matrix was Generated with all the Software Intentions, since is a single user software the actor of this BDD Matrix is only one, The Music Student. 
+
+| Feature | Scenario |
+|----|------------|
+| FEAT 01 | As a student I want to create my repertoire of musics on the system |
+| FEAT 02 | As a student I want to be able to upload midi files as musics on my repertoire and I wish that the system converts this midi files into sheet musics. |
+| FEAT 03 | As a student I want to create practice routines on the system |
+| FEAT 04 | As a student I want to create execute practice routines daily |
+| FEAT 05 | As a student, on a practice session, I want to view the sheet music of the music that I am practicing |
+| FEAT 06 | As a student, on a practice session, I want to practice with the absolute accuracy method |
+| FEAT 07 | As a student, on a practice session, I want to practice from the last measure that I got right using the absolute accuracy method |
+| FEAT 08 | As a student, I want to be alerted by the system to advance to the next music of my practice session |
+| FEAT 09 | As a student I want to receive statistics of my piano practice sessions |
+
+### 3.1.3. Event Storming
+With the features defined an event storm session was realized to understand all the business flow and section was represented using some simple notation as follows:
+
+```
+==============================================
+How to read:
+    "A Command ->" 
+    "... An Event that triggers -> A Command ->" 
+    "| A Query (one liner) | ->  ..."
+    "# Comments"
+==============================================
+
+CONTEXT MUSIC PRACTICE PLANNER
+    PRACTICE
+        ROUTINES 
+
+            Create Practice Routine ->
+                A Practice Routine Was Created
+
+                Add Music To Practice Routine -> 
+                    A Music Was Added to the Practice Routine
+
+            ... The music was removed from repertoire -> Remove Music From Practice Routines -> 
+                The music was removed from practice routine
+
+            |List Practice Routines| ->  A List of Practice Routines was loaded 
+            
+            |Select Practice Routine| ->  A Practice Routine was selected (for practice)
+
+        SESSIONS 
+            Start Daily Practice Session -> 
+                The Daily Practice Session Started
+                    
+                Start Practicing Next Music ->  #First if not have any at the beginning 
+                    Music Practice Started 
+                    The Time Counter was started
+                    The Next Music was Not Found // Error Handling
+
+                #Practice Starts with the last learned section
+            ... Music Practice Started -> Load Last Music Section Learned -> #First if not exists any
+                    The Music Section was Loaded
+            ... The Music Section was Loaded -> Load The Sheet Music For Section  
+                    The Sheet Music For Section was Loaded
+                    
+                # The student plays the section and the system evaluates using AAR Method
+                # This might be front end only 
+                Evaluate Music Section Execution ->                 
+                    The Music Section was Executed Correctly 
+                    The Music Section was Incorrectly 
+
+            ... The Music Section was Executed Correctly (7x) -> Register Music Section Learned -> 
+                The Music Section was learned
+            
+            ... The Music Section was Incorrectly -> Restart Practice in Music Session
+                Practice in Music Session was restarted
+        
+            ... The Time Counter expires -> End Music Practice -> 
+                The Music Practice Has Ended
+
+            ... The Music Practice Has Ended (All musics)
+            ... The Next Music was Not Found -> End Practice Session -> 
+                    The Daily Practice Session Ended
+
+    REPERTOIRE 
+        Upload Music -> 
+            A Music was Saved 
+            A Midi File was Saved
+
+        Create Music ->  
+            A Music was Saved
+
+        Update Music ->  
+            The Music Was Updated 
+
+        ... A ABC Conversion Has Ended -> Update Music ->
+            The Music Was Updated
+
+        Remove Music -> 
+            The music was removed from repertoire 
+
+        | Get the List of Musics | ->  List my learning musics
 
 
-## 3.1. Business Context
+CONTEXT ABC CONVERSION
+    ...A Midi File was Saved -> Convert Midi to Abc Notation
+        A ABC Conversion Has Ended 
+
+
+```
+
+## 3.1,4. Music Section Selection
+To Select the music sections the following algorithm must be applied:
+The Music is divided in measures, so the main rule is to train the first measure, train the next one, train both of them together and then add the next measure until the music ends
+IE: Suppose a music with  MeasureA, MeasureB, MeasureC
+   
+The training order will follow: 
+
+    MeasureA, MeasureB, MeasureC
+    A B C
+    1 2
+     3  4
+       5
+
+The Musical Practice Sections will be
+1. MeasureA
+2. MeasureB
+3. MeasureA + MeasureB
+4. MeasureC
+5. MeasureA + MeasureB + MeasureC
+
+
+## 3.2. Business Context
+
+With the domain we could extract the business context 
 
 
 ```plantuml
@@ -221,7 +351,7 @@ As mentioned, React will be used as a main Frontend Framework, the main purpose 
 On the backend the application will have a domain model with the models "Music", "PracticeRoutine", "PracticeSession" as the most important ones. 
 
 Since there will be a feature to perform upload of midi file and convert it to ABC music notation, the backend also will use a tool in python to perform this conversion. 
-
+Gateway
 In order to use the tool a Messaging Queue System will be used to periodically send requests to the conversion system. That will not block the performance of the application while we are waiting for the conversion to take place. 
 
 
@@ -239,7 +369,7 @@ package "cmp Level 0" {
         [PracticeMusic]
     }
     package MusicPracticePlannerAPI{
-        [MusicAPI]
+        [RepertoireAPI]
         [PracticeRoutineAPI]
         [PracticeSessionAPI]
     }
@@ -277,28 +407,28 @@ package "cmp Level 0" {
             [PracticeService]
             [PracticePersistence]
 
-            [MusicAPI]
+            [RepertoireAPI]
             [MusicMessageQueueListener]
-            [MusicService]
-            [MusicPersistence]
+            [RepertoireService]
+            [RepertoirePersistence]
 
-            Gateway ..> MusicAPI
+            Gateway ..> RepertoireAPI
             Gateway ..> PracticeAPI
 
-            MusicAPI -d.> MusicService
-            MusicService -r.> FileSystemStorage
+            RepertoireAPI -d.> RepertoireService
+            RepertoireService -r.> FileSystemStorage
             PracticeAPI -d.> PracticeService
-            MusicMessageQueueListener -d.> MusicService
-            MusicPersistence -u. MusicService
+            MusicMessageQueueListener -d.> RepertoireService
+            RepertoirePersistence -u. RepertoireService
             PracticePersistence -u. PracticeService
         }
         
         MusicMessageQueueListener -up.> [MessageQueue] 
         Gateway -up. [client-app] 
         Gateway -up. [MusicPracticePlannerAuthAPI] 
-        MusicPersistence -down. MusicDatabase
+        RepertoirePersistence -down. RepertoireDatabase
         PracticePersistence -down. PracticeDatabase
-        PracticeService -l.> MusicService
+        PracticeService -l.> RepertoireService
 
 
 
@@ -307,7 +437,7 @@ package "cmp Level 0" {
 
 The diagram shows a decomposition of the whole Music Practice API in a project structured level. 
 APIs and MessageQueueListener are the main entrypoints of the package, responsible to gather the information on the Music
-For now, since the application will run in a single server, same database system can be used for the PracticeDatabase and MusicDatabase
+For now, since the application will run in a single server, same database system can be used for the PracticeDatabase and RepertoireDatabase
 
 
 * **[Gateway](#511-gateway-blackbox)**: The entrypoint of the application, it will use MusicPracticePlannerAuthAPI as authority on the JWT Token validation 
@@ -318,13 +448,13 @@ For now, since the application will run in a single server, same database system
 
 * **PracticePersistence**: Persistence of the practice sessions 
 
-* **[MusicAPI](#514-musicapi-blackbox)**: API for the student to register music and perform upload of the midi files 
+* **[RepertoireAPI](#514-Repertoireapi-blackbox)**: API for the student to register music and perform upload of the midi files 
 
 * **[MusicMessageQueueListener](#515-musicmessagequeuelistener-blackbox)**: The listener will be responsible to receive event notifications of converted midi files 
 
-* **[MusicService](#516-musicservice-blackbox)**: Music service will register the music details, save midi file on filesystem and send notification to the message queue about midi uploded
+* **[RepertoireService](#516-Repertoireservice-blackbox)**: Music service will register the music details, save midi file on filesystem and send notification to the message queue about midi uploded
 
-* **MusicPersistence**: Persistence of the saved 
+* **RepertoirePersistence**: Persistence of the saved 
 
 * **FileSystemStorage**: Used to store the midi files
 
@@ -335,7 +465,7 @@ Provides full access of internal entrypoints on the system, performs the action 
 
 | Interface | Description |
 |----|---------|
-| RESTinterface <br> /api/v1/music/*   | maps to the Music API |
+| RESTinterface <br> /api/v1/repertoire/musics/*   | maps to the Repertoire API |
 | RESTinterface <br> /api/v1/practiceroutines/*   | maps to the Practice API |
 
 
@@ -354,50 +484,54 @@ Provides CQRS methods used by Practice API to accomplish its features
 
 | Commands | Description |
 |----|---------|
-| CreatePracticeRoutine   | Creates the practice routine  |
-| UpdatePracticeRoutine   | Updates the practice routine |
-| RemovePracticeRoutine   | Remove the practice routine |
-| StartPracticeSession   | Starts a practice session |
-| StopPracticeSession   | Stops a practice session |
-| SavePracticeInformation   | Register the practice information related to the music |
+|CreatePracticeRoutine| Creates a Practice Routine |
+|AddMusicToPracticeRoutine| Adds Music to the Practice Routine | 
+|RemoveMusicFromPracticeRoutine| Removes the Music From the Practice Routine
+|||
+|StartDailyPracticeSession| Starts a daily practice session |
+|StartPracticingNextMusic| Starts the practice on the next music |
+|EvaluateMusicSectionExecution| Evaluates the Music Session Execution|
+|RegisterMusicSectionLearning | Registers the Music Section as Learned |
+|RestartPracticeInMusicSession| Restarts the Music Section Learning |
+|EndMusicPractice | Ends the Practice Session for the Music |
+|EndPracticeSession | Ends the daily Practice Session |
+
 
 | Queries | Description |
 |----|---------|
 | ListPracticeRoutines   | Lists the Practice Routines  |
-| FindPracticeRoutine   | Find the practice routine |
-| ListPracticeSessions   | Gets all sessions related to a practice routine |
-| GetCurrentPracticeSession | Gets the current session that student is executing |
-| GetPracticeSession | Gets a practice session |
+|SelectPracticeRoutine| Select Practice Routine for Practice Session |
 
-## 5.1.4. MusicAPI (blackbox)
+
+## 5.1.4. RepertoireAPI (blackbox)
 
 Provides access to the music API functionality
 
 | Interface | Description |
 |----|---------|
-| RESTinterface <br> /api/music/*   | Containing CRUD operations of Music Information |
+| RESTinterface <br> /api/musics/*   | Containing CRUD operations of Music Information |
 
 ## 5.1.5. MusicMessageQueueListener (blackbox)
 Connects to the MessageQueue and listens for events
 
 | Event | Description |
 |----|---------|
-| ABCNotationCreated | Sends the information to the MusicService to update the music's abc notation |
+| ABCNotationCreated | Sends the information to the RepertoireService to update the music's abc notation |
 
 
-## 5.1.6. MusicService (blackbox)
+## 5.1.6. RepertoireService (blackbox)
 
 Provides CQRS methods used by Music API to accomplish its features
 
 | Commands | Description |
 |----|---------|
-| CreateMusic   | Creates the music  |
-| UpdateMusic   | Updates the music |
-| RemoveMusic   | Remove the music |
-| UpdateMusicABCNotation   | Updates the music's abc notation |
+|UploadMusic| Uploads a Midi File and Creates a Music for it  | 
+|UpdateMusicsABCNotation| Update the Existent Music's ABC Notation  |
+|CreateMusic| Creates A Music  |  
+|UpdateMusic|  Updates the Music Information |  
+|RemoveMusic|  Remove the music from Repertoire | 
 
 | Queries | Description |
 |----|---------|
-| ListMusics   | Lists the musics  |
-| FindMusic   | Find the music |
+| GetMusics   | Lists the musics  |
 
