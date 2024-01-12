@@ -222,7 +222,77 @@ The Musical Practice Sections will be
 5. MeasureA + MeasureB + MeasureC
 
 
-## 3.2. Business Context
+## 3.2. Domain Model
+This is a diagram of the most important items on the domain model.
+
+```plantuml
+@startuml Domain Model
+
+
+package Practice {
+
+    entity MusicPracticeSession {
+        * Executor:StudentId
+        * CurrentMusicPractice
+        * CurrentPracticeSection
+        * TimeToEnd
+    }
+
+    entity MusicPractice {
+        * PracticeSections:PracticeSection[]
+        GeneratePracticeSections()
+        EvaluatePractice(PracticeSection, Practiced)
+    }
+    entity PracticeSection {
+        EvaluatePractice(Practiced)
+    }
+
+    entity PracticeRoutine {
+        * Owner:StudentId
+        * Musics:MusicPractice[]
+        * CurrentPracticeSession:MusicPracticeSession
+        AddMusic(MusicPractice)
+        RemoveMusic(MusicPractice)
+        GeneratePracticeSession():MusicPracticeSession
+        CurrentPracticeSession():MusicPracticeSession
+    }
+
+}
+
+package Repertoire {
+    entity RepertoireAggregator {
+        * Owner:StudentId
+        AddMusic()   
+        RemoveMusic()
+        ListMusics()
+    }
+
+    entity Music{
+        * Name
+        * Midi File
+        UpdateAcNotation()
+    }
+
+}
+package MusicAuthenticatio {
+
+    entity Student{
+        * StudentId
+        * login
+        * password
+    }
+}
+
+Music }|..|| RepertoireAggregator
+PracticeRoutine ..|| MusicPracticeSession : daily session 
+MusicPractice }|..|| PracticeRoutine : musics in the routine
+PracticeSection }|..|| MusicPractice : sections in music
+
+@enduml
+```
+
+
+## 3.3. Business Context
 
 With the domain we could extract the business context 
 
@@ -262,7 +332,7 @@ The entrypoint for the student's musical instrument. Student will be able to con
 #### EasyA
 A python application that converts midi music to a "human-readable" format to display sheet musics
 
-## 3.2. Technical Context
+## 3.4. Technical Context
 
 ```plantuml
 @startuml Technical Context

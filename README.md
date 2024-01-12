@@ -15,7 +15,6 @@
 * FEAT-05: The Student will be able to create your profile and all the music that he register will be linked to his profile
 
 ### Architecture and Project Detail
-Architecture is fun! 
 Follow up the [Architecture Design Document](docs/architecture.md) for details
 
 
