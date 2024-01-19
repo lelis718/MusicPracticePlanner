@@ -269,12 +269,25 @@ package Repertoire {
 
     entity Music{
         * Name
-        * Midi File
-        UpdateAcNotation()
+        * ABCNotation
+        * MidiFile
+        UpdateAbcNotation()
     }
 
+    class ABCNotation{
+        * NotationString
+    }
+
+    class MidiFile{
+        * Url
+    }
+
+    Music -> MidiFile
+    Music -down-> ABCNotation
+
 }
-package MusicAuthenticatio {
+
+package Authentication {
 
     entity Student{
         * StudentId
