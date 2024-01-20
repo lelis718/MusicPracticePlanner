@@ -1,4 +1,5 @@
 using MusicPracticePlanner.Base.DomainPrimitives;
+using RepertoireDomain.Events;
 using RepertoireDomain.ValueObjects;
 
 namespace RepertoireDomain.Entities;
@@ -21,13 +22,21 @@ public class Music : Entity
         return new Music(Guid.NewGuid(), name, repertoire);
     }
 
-    public void AddMidiFile(string fileUrl)
+    public void UpdateMidiFile(string fileUrl)
     {
+        if(MidiFile != null){
+            this.Raise(new MidiFileRemoved(Id, MidiFile.FileUrl));
+        }
         this.MidiFile = new MidiFile(fileUrl);
     }
 
     public void UpdateAbcNotation(string notationString)
     {
         this.ABCNotation = new ABCNotation(notationString);
+    }
+
+    public void UpdateName(string name)
+    {
+        this.Name = name;
     }
 }

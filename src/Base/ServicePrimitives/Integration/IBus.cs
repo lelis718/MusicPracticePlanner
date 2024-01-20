@@ -2,5 +2,5 @@
 
 public interface IBus
 {
-    Task Send(IIntegrationEvent @event);
+    Task Send(IIntegrationEvent @event, CancellationToken cancellationToken);
 }

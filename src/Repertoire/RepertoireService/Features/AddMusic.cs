@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using MusicPracticePlanner.Base.ServicePrimitives;
 using MusicPracticePlanner.Base.ServicePrimitives.Integration;
 using RepertoireDomain;
 using RepertoireDomain.Entities;
@@ -13,15 +14,15 @@ public abstract class AddMusic
 
     public class Handler : IRequestHandler<Command, Guid>
     {
-        private IBus _bus;
         private IStorageService _storageService;
         private IRepertoireRepository _repertoireRepository;
+        private IUnitOfWork _unitOfWork;
 
-        public Handler(IStorageService storageService, IRepertoireRepository repertoireRepository, IBus bus)
+        public Handler(IStorageService storageService, IRepertoireRepository repertoireRepository, IUnitOfWork unitOfWork)
         {
             _storageService = storageService;
             _repertoireRepository = repertoireRepository;
-            _bus = bus;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Guid> Handle(Command request, CancellationToken cancellationToken)
@@ -36,7 +37,8 @@ public abstract class AddMusic
             Music music = repertorie.AddMusic(request.Name, fileUrl.Url);
 
             await _repertoireRepository.Save(repertorie, cancellationToken);
-            await _bus.Send(new MidiFileAdded(music.Id, fileUrl.Url));
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return music.Id;
         }
